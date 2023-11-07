@@ -1,34 +1,45 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React from 'react';
+import Map from 'ol/Map.js';
+import View from 'ol/View.js';
+import './App.css';
+import TileLayer from 'ol/layer/Tile';
+import { OSM, TileWMS, XYZ } from 'ol/source';
+
+const url = "https://openmaps.gov.bc.ca/geo/pub/WHSE_BASEMAPPING.DRA_DGTL_ROAD_ATLAS_MPAR_SP/ows?service=WMS"
 
 function App() {
-  const [count, setCount] = useState(0)
-
+  React.useEffect(() => {
+    new Map({
+      layers: [
+        new TileLayer({
+          source: new OSM(),
+        }),
+        new TileLayer({
+          // extent: [-13884991, 2870341, -7455066, 6338219],
+          source: new TileWMS({
+            url,
+            params: {'LAYERS': 'topp:states', 'TILED': true},
+            serverType: 'geoserver',
+            // Countries have transparency, so do not fade tiles:
+            transition: 0,
+            crossOrigin: 'anonymous'
+          }),
+        })
+      ],
+      view: new View({
+        center: [-13764958,7086252],
+        // center: [0, 0],
+        zoom: 10
+      }),
+      target: 'map'
+    });
+  }, [])
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+      <div
+        id='map'
+        style={{width: '400px', height: '400px', border: '1px solid'}}
+      >
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
   )
 }
 
